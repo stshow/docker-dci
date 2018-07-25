@@ -70,7 +70,7 @@ ansible-config(){
     read -p "Docker EE version (e.g. 17.06): " DOCKVER
     read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
     read -p "License location (full path): " LICENSE
-    read -p "UCP password: " PASS
+    read -sp "UCP password: " PASS
     REPLICA=$(head -3 /dev/urandom | tr -cd '[:alnum:]' | sed 's/[^0-9]*//g' |cut -c -12)
     echo "
 docker_dtr_image_repository: docker

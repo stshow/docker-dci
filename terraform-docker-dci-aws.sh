@@ -29,7 +29,15 @@ read -p "UCP version: " UCPVER
 read -p "DTR version: " DTRVER
 read -p "Docker EE version (e.g. 17.06): " DOCKVER
 read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
-read -sp "UCP password: " PASS
+
+while true; do
+    read -s -p "UCP password: " PASS
+    echo
+    read -s -p "UCP password (again): " PASS2
+    echo
+    [ "$PASS" = "$PASS2" ] && break
+    echo "Please try again"
+done
 
 terraform-lab(){
     LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')

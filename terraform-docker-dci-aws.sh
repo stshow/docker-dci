@@ -16,6 +16,7 @@ if [ -f ~/.terr-script.conf ]; then
         do export $i;
             done
 else
+    echo -en "\nConfig file not found at '~/.terr-script.conf'.\nPrompting for config file values instead.\n\n"
     read -p "License location (full path): " LICENSE
     read -p "Private key file (full path): " KEY
     read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-      1#KeyPairs:sort=keyName): " AWSKEYNAME

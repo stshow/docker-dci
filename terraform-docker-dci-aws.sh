@@ -3,13 +3,12 @@
 # Usage: 
 #
 #    Pre-requisite: You must have aws cli configured. 
-#    Add the following to .bashrc:
-#    `source /path/to/terraform.sh`
-#
+#    
+#    Functions execute in this order:
 #    1.) terraform-lab
 #    2.) terraform-config
-#    3.) terraform-init
-#    4.) ansible-config
+#    3.) ansible-config
+#    4.) terraform-init
 #    5.) ansible-init
 
 #TODO:
@@ -17,12 +16,24 @@
 #2.) Have script read from config file.
 #3.) Consider containerizing script. 
 
+read -p "Ticket number: " TICKET
+read -p "License location (full path): " LICENSE
+read -p "Private key file (full path): " KEY
+read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
+read -p "Lab name: " LABNAME
+read -p "UCP manager count: " UCPMGR
+read -p "DTR node count: " DTRWKR
+read -p "Linux worker count: " LINWKR
+read -p "Windows worker count: " WINWKR
+read -p "UCP version: " UCPVER
+read -p "DTR version: " DTRVER
+read -p "Docker EE version (e.g. 17.06): " DOCKVER
+read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
+read -sp "UCP password: " PASS
+
 terraform-lab(){
     LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
     VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')
-    read -p "Ticket number: " TICKET
-    read -p "License location (full path): " LICENSE
-    read -p "Private key file (full path): " KEY
     mkdir -p ~/LABS/${TICKET}
     cd ~/LABS/${TICKET}
     #wget https://releases.hashicorp.com/terraform/${VERSION_NUMBER}/${LATEST}_linux_amd64.zip -O terraform.zip
@@ -38,13 +49,6 @@ terraform-lab(){
 }
 
 terraform-config(){
-    read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
-    read -p "AWS Private key file (full path): " KEY
-    read -p "Lab name: " LABNAME
-    read -p "UCP manager count: " UCPMGR
-    read -p "DTR node count: " DTRWKR
-    read -p "Linux worker count: " LINWKR
-    read -p "Windows worker count: " WINWKR
     IMAGE=$(aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial*  --query 'Images[*].[Name]' --output text  | sort -r -V  | head -1)
     LINOWNERID=$(aws ec2 describe-images --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1)
     WINOWNERID=$(aws ec2 describe-images --filters Name=name,Values=Windows_Server-2016-English-Full-Containers-2017.11.29 --query 'Images[*].[OwnerId]' --output text | sort -k2 -r | head -n1)
@@ -70,12 +74,6 @@ efs_supported              = \"1\" # 1 if the region supports EFS (0 if not)
 }
 
 ansible-config(){
-    read -p "UCP version: " UCPVER
-    read -p "DTR version: " DTRVER
-    read -p "Docker EE version (e.g. 17.06): " DOCKVER
-    read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
-    read -p "License location (full path): " LICENSE
-    read -sp "UCP password: " PASS
     REPLICA=$(head -3 /dev/urandom | tr -cd '[:alnum:]' | sed 's/[^0-9]*//g' |cut -c -12)
     echo "
 docker_dtr_image_repository: docker
@@ -118,11 +116,10 @@ terraform-init(){
     ../terraform plan
     echo -en "\nInitiating in 5 seconds...\n"
     sleep 5
-    ../terraform apply
+    ../terraform apply -auto-approve
 }
 
 ansible-init(){
-    read -p "Authorized key file (full path): " KEY
     ssh-add $KEY
     ansible-playbook --private-key=${KEY} -i inventory install.yml
 }
@@ -131,3 +128,9 @@ aws-image-list(){
     aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V  | head -1
     aws ec2 describe-images  --filters Name=name,Values=centos-7*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V |head -1
 }
+
+terraform-lab
+terraform-config
+ansible-config
+terraform-init
+ansible-init

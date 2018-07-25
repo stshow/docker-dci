@@ -17,7 +17,7 @@ terraform-lab(){
     VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')
     read -p "Ticket number: " TICKET
     read -p "License location (full path): " LICENSE
-    read -p "Authorized key file (full path): " KEY
+    read -p "Private key file (full path): " KEY
     mkdir -p ~/LABS/${TICKET}
     cd ~/LABS/${TICKET}
     #wget https://releases.hashicorp.com/terraform/${VERSION_NUMBER}/${LATEST}_linux_amd64.zip -O terraform.zip

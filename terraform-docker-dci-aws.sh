@@ -10,6 +10,9 @@
 #    3.) ansible-config
 #    4.) terraform-init
 #    5.) ansible-init
+#
+# Seeing invalid bucket names in 0.11.7: https://github.com/terraform-providers/terraform-provider-aws/issues/423 
+# As such, added ability to choose latest terraform or default to 0.11.7
 
 if [ -f ~/.terr-script.conf ]; then
     for i in $(cat ~/.terr-script.conf|grep -v '#'|grep -v ^$);
@@ -22,6 +25,7 @@ else
     read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-      1#KeyPairs:sort=keyName): " AWSKEYNAME
     read -p "AWS Region (e.g. us-east-2): " REGION
     read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
+    read -p "Terraform version (latest or 0.x.x): " TERRVER
 fi
 
 #TODO:
@@ -53,8 +57,16 @@ export TF_LOG=TRACE
 export TF_LOG_PATH=./terraform.log
 
 terraform-lab(){
-    LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
-    VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')
+    if [ "$TERRVER" = 'latest' ]; then
+        LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
+        VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')
+    elif [ ! "$TERRVER" = 'latest' ] && [ ! -z "$TERRVER" ]; then
+        LATEST=$(echo -en terraform_$(echo -en "$TERRVER"))
+        VERSION_NUMBER=$TERRVER
+    else
+        LATEST="terraform_0.11.5"
+        VERSION_NUMBER="0.11.5"
+    fi
     mkdir -p ~/LABS/${TICKET}
     cd ~/LABS/${TICKET}
     #wget https://releases.hashicorp.com/terraform/${VERSION_NUMBER}/${LATEST}_linux_amd64.zip -O terraform.zip

@@ -1,0 +1,13 @@
+## Move this file to ~/.terr-script.conf and populate if you want to avoid re-typing certain info. 
+
+#"License location (full path): " LICENSE
+#"Private key file (full path): " KEY
+#"AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
+#"AWS Region (e.g. us-east-2): " REGION
+#"Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
+
+LICENSE=
+KEY=
+AWSKEYNAME=
+SUB=
+REGION=

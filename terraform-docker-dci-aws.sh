@@ -11,17 +11,24 @@
 #    4.) terraform-init
 #    5.) ansible-init
 
+if [ -f ~/.terr-script.conf ]; then
+    for i in $(cat ~/.terr-script.conf|grep -v '#'|grep -v ^$);
+        do export $i;
+            done
+else
+    read -p "License location (full path): " LICENSE
+    read -p "Private key file (full path): " KEY
+    read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-      1#KeyPairs:sort=keyName): " AWSKEYNAME
+    read -p "AWS Region (e.g. us-east-2): " REGION
+    read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
+fi
+
 #TODO:
 #1.) Make variables global to avoid requesting the same information again. 
 #2.) Have script read from config file.
 #3.) Consider containerizing script. 
 
 read -p "Ticket number: " TICKET
-read -p "License location (full path): " LICENSE
-read -p "Private key file (full path): " KEY
-read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
-read -p "AWS Region (e.g. us-east-2): " REGION
-read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
 read -p "Lab name: " LABNAME
 read -p "UCP manager count: " UCPMGR
 read -p "DTR node count: " DTRWKR

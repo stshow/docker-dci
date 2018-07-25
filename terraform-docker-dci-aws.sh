@@ -101,8 +101,9 @@ cloudstor_plugin_version: 18.01.0-ce
 " > group_vars/all
     echo "
 [defaults]
+timeout = 30
 host_key_checking = False
-forks = 12
+forks = 20
 inventory = inventory
 squash_actions = apk,apt,dnf,homebrew,package,pacman,pkgng,shell,win_firewall_rule,win_shell,yum,zypper
 display_skipped_hosts = false
@@ -130,6 +131,7 @@ terraform-init(){
 ansible-init(){
     ssh-add $KEY
     ansible-playbook --private-key=${KEY} -i inventory install.yml
+    echo -en
 }
 
 aws-image-list(){

@@ -1,4 +1,16 @@
 #!/bin/bash
+#
+# Usage: 
+#
+#    Pre-requisite: You must have aws cli configured. 
+#    Add the following to .bashrc:
+#    `source /path/to/terraform.sh`
+#
+#    1.) terraform-lab
+#    2.) terraform-config
+#    3.) terraform-init
+#    4.) ansible-config
+#    5.) ansible-init
 
 terraform-lab(){
     LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')

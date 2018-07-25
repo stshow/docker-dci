@@ -62,8 +62,9 @@ terraform-lab(){
 }
 
 terraform-config(){
-    IMAGE=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[Name]' --output text  | sort -r -V  | head -1)
-    LINOWNERID=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1)
+    LINIMAGEINFO=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[ImageId,Name,OwnerId]' --output text  | sort -V  | head -1)
+    LINIMAGE=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1 | awk '{print $2}')
+    LINOWNERID=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1 | awk '{print $3}')
     WINOWNERID=$(aws ec2 describe-images  --region ${REGION} --filters Name=name,Values=Windows_Server-2016-English-Full-Containers-2017.11.29 --query 'Images[*].[OwnerId]' --output text | sort -k2 -r | head -n1)
     echo "
 linux_ucp_manager_count    = \"${UCPMGR}\"
@@ -77,7 +78,7 @@ ucp_admin_password         = \"\"                          # If unset, check $an
 region                     = \"${REGION}\"                  # The region to deploy (e.g. us-east-2)
 key_name                   = \"${AWSKEYNAME}\"
 private_key_path           = \"${KEY}\"               # The path to the private key corresponding to key_name
-linux_ami_name             = \"${IMAGE}\"
+linux_ami_name             = \"${LINIMAGE}\"
 linux_ami_owner            = \"${LINOWNERID}\" # OwnerID from 'aws ec2 describe-images'
 windows_ami_name           = \"Windows_Server-2016-English-Full-Containers-2017.11.29\"
 windows_ami_owner          = \"${WINOWNERID}\" # OwnerID from 'aws ec2 describe-images'
@@ -141,8 +142,8 @@ ansible-init(){
 }
 
 aws-image-list(){
-    aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V  | head -1
-    aws ec2 describe-images  --filters Name=name,Values=centos-7*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V |head -1
+    aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[ImageId,Name,OwnerId]' --output text  | sort -V  | head -1
+    aws ec2 describe-images  --filters Name=name,Values=centos-7*  --query 'Images[*].[ImageId,Name,OwnerId]' --output text  | sort -V |head -1
 }
 
 terraform-lab

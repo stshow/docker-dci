@@ -20,6 +20,7 @@ read -p "Ticket number: " TICKET
 read -p "License location (full path): " LICENSE
 read -p "Private key file (full path): " KEY
 read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
+read -p "AWS Region (e.g. us-east-2): " REGION
 read -p "Lab name: " LABNAME
 read -p "UCP manager count: " UCPMGR
 read -p "DTR node count: " DTRWKR
@@ -61,9 +62,9 @@ terraform-lab(){
 }
 
 terraform-config(){
-    IMAGE=$(aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial*  --query 'Images[*].[Name]' --output text  | sort -r -V  | head -1)
-    LINOWNERID=$(aws ec2 describe-images --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1)
-    WINOWNERID=$(aws ec2 describe-images --filters Name=name,Values=Windows_Server-2016-English-Full-Containers-2017.11.29 --query 'Images[*].[OwnerId]' --output text | sort -k2 -r | head -n1)
+    IMAGE=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[Name]' --output text  | sort -r -V  | head -1)
+    LINOWNERID=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1)
+    WINOWNERID=$(aws ec2 describe-images  --region ${REGION} --filters Name=name,Values=Windows_Server-2016-English-Full-Containers-2017.11.29 --query 'Images[*].[OwnerId]' --output text | sort -k2 -r | head -n1)
     echo "
 linux_ucp_manager_count    = \"${UCPMGR}\"
 linux_ucp_worker_count     = \"${LINWKR}\"
@@ -73,7 +74,7 @@ deployment                 = \"${LABNAME}\"                 # VM/Hostname prefix
 ansible_inventory          = \"inventory/1.hosts\"
 ucp_license_path           = \"./docker_subscription.lic\"
 ucp_admin_password         = \"\"                          # If unset, check $ansible_inventory for generated value
-region                     = \"us-east-1\"                  # The region to deploy (e.g. us-east-2)
+region                     = \"${REGION}\"                  # The region to deploy (e.g. us-east-2)
 key_name                   = \"${AWSKEYNAME}\"
 private_key_path           = \"${KEY}\"               # The path to the private key corresponding to key_name
 linux_ami_name             = \"${IMAGE}\"
@@ -140,7 +141,7 @@ ansible-init(){
 }
 
 aws-image-list(){
-    aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V  | head -1
+    aws ec2 describe-images  --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V  | head -1
     aws ec2 describe-images  --filters Name=name,Values=centos-7*  --query 'Images[*].[ImageId,Name]' --output text  | sort -V |head -1
 }
 

@@ -63,8 +63,8 @@ terraform-lab(){
 
 terraform-config(){
     LINIMAGEINFO=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-*  --query 'Images[*].[ImageId,Name,OwnerId]' --output text  | sort -V  | head -1)
-    LINIMAGE=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1 | awk '{print $2}')
-    LINOWNERID=$(aws ec2 describe-images --region ${REGION} --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-* --query 'Images[*].[OwnerId]' --output text | sort -r -V | head -1 | awk '{print $3}')
+    LINIMAGE=$(echo -en "${LINIMAGEINFO}" | awk '{print $2}')
+    LINOWNERID=$(echo -en "${LINIMAGEINFO}" | awk '{print $3}')
     WINOWNERID=$(aws ec2 describe-images  --region ${REGION} --filters Name=name,Values=Windows_Server-2016-English-Full-Containers-2017.11.29 --query 'Images[*].[OwnerId]' --output text | sort -k2 -r | head -n1)
     echo "
 linux_ucp_manager_count    = \"${UCPMGR}\"

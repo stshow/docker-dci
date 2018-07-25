@@ -12,6 +12,11 @@
 #    4.) ansible-config
 #    5.) ansible-init
 
+#TODO:
+#1.) Make variables global to avoid requesting the same information again. 
+#2.) Have script read from config file.
+#3.) Consider containerizing script. 
+
 terraform-lab(){
     LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
     VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')

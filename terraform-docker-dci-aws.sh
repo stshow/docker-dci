@@ -21,6 +21,7 @@ read -p "License location (full path): " LICENSE
 read -p "Private key file (full path): " KEY
 read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
 read -p "AWS Region (e.g. us-east-2): " REGION
+read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
 read -p "Lab name: " LABNAME
 read -p "UCP manager count: " UCPMGR
 read -p "DTR node count: " DTRWKR
@@ -29,7 +30,6 @@ read -p "Windows worker count: " WINWKR
 read -p "UCP version: " UCPVER
 read -p "DTR version: " DTRVER
 read -p "Docker EE version (e.g. 17.06): " DOCKVER
-read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
 
 while true; do
     read -s -p "UCP password: " PASS

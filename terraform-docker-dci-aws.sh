@@ -39,6 +39,10 @@ while true; do
     echo "Please try again"
 done
 
+## Enable logging of terraform. 
+export TF_LOG=TRACE
+export TF_LOG_PATH=./terraform.log
+
 terraform-lab(){
     LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
     VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')

@@ -130,12 +130,13 @@ terraform-init(){
     echo -en "\nInitiating in 5 seconds...\n"
     sleep 5
     ../terraform apply -auto-approve
+    ../terraform output | tee -a ../LAB-INFO.txt
 }
 
 ansible-init(){
     ssh-add $KEY
     ansible-playbook --private-key=${KEY} -i inventory install.yml
-    echo -en
+    grep -v '^#' inventory/1.hosts | grep -v '^$' | tee -a ../LAB-INFO.txt
 }
 
 aws-image-list(){

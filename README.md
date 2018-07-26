@@ -48,7 +48,7 @@ terraform.zip
 $ cat ${HOMEDIR}/LABS/${TICKET-NUMBER}/aws-v1.0.0/terraform.log # terraform debug logging.
 ```
 
-
+### Note: If you wish to deploy with an ELB, append `--with-elb` to the script. 
 **To Do:**
 
     1. Add support for CentOS/RHEL7/SLES/Ubuntu 18.04 (Currently only Ubuntu 16.04 is used).

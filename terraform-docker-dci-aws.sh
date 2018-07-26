@@ -29,8 +29,6 @@ else
 fi
 
 #TODO:
-#1.) Make variables global to avoid requesting the same information again. 
-#2.) Have script read from config file.
 #3.) Consider containerizing script. 
 
 read -p "Ticket number: " TICKET
@@ -64,8 +62,8 @@ terraform-lab(){
         LATEST=$(echo -en terraform_$(echo -en "$TERRVER"))
         VERSION_NUMBER=$TERRVER
     else
-        LATEST="terraform_0.11.5"
-        VERSION_NUMBER="0.11.5"
+        LATEST="terraform_0.11.7"
+        VERSION_NUMBER="0.11.7"
     fi
     mkdir -p ~/LABS/${TICKET}
     cd ~/LABS/${TICKET}
@@ -158,7 +156,7 @@ terraform-init(){
     echo -en "\nInitiating in 5 seconds...\n"
     sleep 5
     ../terraform apply -auto-approve
-    ../terraform output | tee -a ../LAB-INFO.txt
+    VPC_ID=$(../terraform show | grep -A 1 aws_vpc.docker | tail -1 | awk '{print $NF}'); aws ec2 describe-instances --filters Name=vpc-  id,Values=${VPC_ID}
 }
 
 ansible-init(){
@@ -173,6 +171,28 @@ aws-image-list(){
 }
 
 terraform-lab
+
+case "$1" in
+    --no-elb)
+                cd ~/LABS/${TICKET}/aws-*
+                echo " " > outputs.tf
+                rm elb.tf
+                sed -i '/docker_ucp_lb/d' ansible_inventory.tf
+                sed -i '/docker_dtr_lb/d' ansible_inventory.tf
+                ;;
+  --with-elb)
+                echo -en "\nDeploying with ELB load balancers, please remove when done.\n"
+                ;;
+          "")
+                echo "Deploying without ELBs..."
+                cd ~/LABS/${TICKET}/aws-*
+                echo " " > outputs.tf
+                rm elb.tf
+                sed -i '/docker_ucp_lb/d' ansible_inventory.tf
+                sed -i '/docker_dtr_lb/d' ansible_inventory.tf
+                ;;
+esac
+
 terraform-config
 ansible-config
 terraform-init

@@ -108,7 +108,13 @@ efs_supported              = \"1\" # 1 if the region supports EFS (0 if not)
 }
 
 ansible-config(){
-    REPLICA=$(head -3 /dev/urandom | tr -cd '[:alnum:]' | sed 's/[^0-9]*//g' |cut -c -12)
+    #REPLICA=$(head -3 /dev/urandom | tr -cd '[:alnum:]' | sed 's/[^0-9]*//g' |cut -c -12)
+    # We need 12 hexadecimal digits, this might be a better wait to get it.
+    if [ $(command -v xxd) ]; then
+        REPLICA=$(n=6; xxd -l "$n" -p  /dev/urandom | tr -d " \n" ; echo -en)
+    else
+        REPLICA=1234567890ab
+    fi
     echo "
 docker_dtr_image_repository: docker
 docker_dtr_version: ${DTRVER}

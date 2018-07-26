@@ -1,7 +1,7 @@
 # docker-dci
 A script to deploy Docker Certified Infrastructure labs
 
-AWS Usage (with config file):
+**AWS Usage (with config file):**
 
 ```
 $ cat ~/.terr-script.conf 
@@ -33,7 +33,7 @@ UCP password:
 UCP password (again): 
 ```
 
-Result:
+**Result:**
 
 ```
 $ cd ${HOMEDIR}/LABS/${TICKET-NUMBER}

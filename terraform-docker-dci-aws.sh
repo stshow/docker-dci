@@ -166,7 +166,7 @@ terraform-init(){
     echo -en "\nInitiating in 5 seconds...\n"
     countdown 5
     ../terraform apply -auto-approve
-    VPC_ID=$(../terraform show | grep -A 1 aws_vpc.docker | tail -1 | awk '{print $NF}'); aws ec2 describe-instances --filters Name=vpc-  id,Values=${VPC_ID}
+    VPC_ID=$(../terraform show | grep -A 1 aws_vpc.docker | tail -1 | awk '{print $NF}'); aws ec2 describe-instances --filters Name=vpc-id,Values=${VPC_ID}
 }
 
 ansible-init(){

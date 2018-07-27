@@ -18,6 +18,16 @@ if [ -f ~/.terr-script.conf ]; then
     for i in $(cat ~/.terr-script.conf|grep -v '#'|grep -v ^$);
         do export $i;
             done
+
+
+function countdown(){
+   date1=$((`date +%s` + $1)); 
+   while [ "$date1" -ge `date +%s` ]; do 
+     echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r";
+     sleep 0.1
+   done
+}
+
 else
     echo -en "\nConfig file not found at '~/.terr-script.conf'.\nPrompting for config file values instead.\n\n"
     read -p "License location (full path): " LICENSE
@@ -154,7 +164,7 @@ terraform-init(){
     ../terraform init
     ../terraform plan
     echo -en "\nInitiating in 5 seconds...\n"
-    sleep 5
+    countdown 5
     ../terraform apply -auto-approve
     VPC_ID=$(../terraform show | grep -A 1 aws_vpc.docker | tail -1 | awk '{print $NF}'); aws ec2 describe-instances --filters Name=vpc-  id,Values=${VPC_ID}
 }
@@ -193,7 +203,17 @@ case "$1" in
                 ;;
 esac
 
+
 terraform-config
 ansible-config
 terraform-init
+
+# Sometimes terraform times out waiting for instances, but they still exist. 
+# This will regenerate the ansible inventory.
+echo -en "\n\nWaiting one minute while instances become available (ignore errors for now)...\n"
+
+countdown 60
+
+../terraform apply -auto-approve
+
 ansible-init

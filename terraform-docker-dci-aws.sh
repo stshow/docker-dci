@@ -32,7 +32,7 @@ else
     echo -en "\nConfig file not found at '~/.terr-script.conf'.\nPrompting for config file values instead.\n\n"
     read -p "License location (full path): " LICENSE
     read -p "Private key file (full path): " KEY
-    read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-      1#KeyPairs:sort=keyName): " AWSKEYNAME
+    read -p "AWS Private Key Name (https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName): " AWSKEYNAME
     read -p "AWS Region (e.g. us-east-2): " REGION
     read -p "Subscription from store.docker.com (Format: sub-xxx-xxx-xxx-xxx): " SUB
     read -p "Terraform version (latest or 0.x.x): " TERRVER
@@ -67,7 +67,7 @@ export TF_LOG_PATH=./terraform.log
 terraform-lab(){
     if [ "$TERRVER" = 'latest' ]; then
         LATEST=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1|tr -d ' ')
-        VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 |    awk -F '_' '{print $2}' | tr -d ' ')
+        VERSION_NUMBER=$(curl -s https://releases.hashicorp.com/terraform/ | sed 's/<[^>]*>//g' | grep terraform | sort -V | tail -1 | awk -F '_' '{print $2}' | tr -d ' ')
     elif [ ! "$TERRVER" = 'latest' ] && [ ! -z "$TERRVER" ]; then
         LATEST=$(echo -en terraform_$(echo -en "$TERRVER"))
         VERSION_NUMBER=$TERRVER
@@ -180,6 +180,10 @@ aws-image-list(){
     aws ec2 describe-images  --filters Name=name,Values=centos-7*  --query 'Images[*].[ImageId,Name,OwnerId]' --output text  | sort -V |head -1
 }
 
+terraform-vpc-instances(){
+    VPC_ID=$(../terraform show | grep -A 1 aws_vpc.docker | tail -1 | awk '{print $NF}'); aws ec2 describe-instances --filters Name=vpc-id,Values=${VPC_ID}| jq '.Reservations[].Instances[] | [.LaunchTime, .State.Name, (.Tags[]|select(.Key=="Name")|.Value), .PublicDnsName, .PublicIpAddress]'
+}
+
 terraform-lab
 
 case "$1" in
@@ -217,3 +221,5 @@ countdown 60
 ../terraform apply -auto-approve
 
 ansible-init
+
+terraform-vpc-instances
